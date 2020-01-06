@@ -3,4 +3,4 @@
 ### Installation
 
 
-### Usage
+### Usage and documentation
