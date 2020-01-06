@@ -3,13 +3,23 @@ package db
 import (
 	"context"
 	"log"
+	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// Mongodb env variables
+const (
+	MongoUrlKey       = "MONGO_URL"
+	MongoDatabaseName = "MONGO_DB_NAME"
+)
+
+// Mongo returns the client required to connect.
 func getClient() *mongo.Client {
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	mongoUrl := os.Getenv(MongoUrlKey)
+
+	clientOptions := options.Client().ApplyURI(mongoUrl)
 	client, err := mongo.NewClient(clientOptions)
 
 	if err != nil {
@@ -25,7 +35,9 @@ func getClient() *mongo.Client {
 	return client
 }
 
+// GetCollection This is the solution to use collections.
 func GetCollection(collectionName string) *mongo.Collection {
-	collection := getClient().Database("project").Collection(collectionName)
+	dbName := os.Getenv(MongoDatabaseName)
+	collection := getClient().Database(dbName).Collection(collectionName)
 	return collection
 }
