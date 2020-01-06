@@ -1,7 +1,9 @@
-# Go Auth
+# Gin Auth Handlers
 
 ### Installation
+To install **Gah (Gin Auth Handlers)** package, you need to install Go and set your Go workspace first.
 
+    go get -u github.com/yasaricli/gah
 
 ### Usage and documentation
 
