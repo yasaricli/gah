@@ -11,8 +11,9 @@ import (
 
 // Mongodb env variables
 const (
-	MongoUrlKey       = "MONGO_URL"
-	MongoDatabaseName = "MONGO_DB_NAME"
+	MongoUrlKey             = "MONGO_URL"
+	MongoDatabaseKey        = "MONGO_DATABASE"
+	MongoUsersCollectionkey = "MONGO_COLLECTION"
 )
 
 // Mongo returns the client required to connect.
@@ -36,8 +37,10 @@ func getClient() *mongo.Client {
 }
 
 // GetCollection This is the solution to use collections.
-func GetCollection(collectionName string) *mongo.Collection {
-	dbName := os.Getenv(MongoDatabaseName)
+func GetCollection() *mongo.Collection {
+	dbName := os.Getenv(MongoDatabaseKey)
+	collectionName := os.Getenv(MongoUsersCollectionkey)
+
 	collection := getClient().Database(dbName).Collection(collectionName)
 	return collection
 }

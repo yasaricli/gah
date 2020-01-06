@@ -15,7 +15,7 @@ type UserStruct struct {
 
 func GetUser(email string) (UserStruct, error) {
 	var user UserStruct
-	collection := db.GetCollection("users")
+	collection := db.GetCollection()
 	doc := collection.FindOne(context.TODO(), bson.M{"email": email})
 
 	err := doc.Decode(&user)
