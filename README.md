@@ -23,7 +23,6 @@ You need the **gin** package to use **gah**. You can install it as follows.
 
     go get -u github.com/gin-gonic/gin
     
-
 Add the `LoginHandler` and `RegisterHandler` functions to the **API**.
 
 ```golang
@@ -45,4 +44,11 @@ func main() {
 
   router.Run(":4000")
 }
+```
+#### Production Release Mode
+
+```sh
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
 ```
