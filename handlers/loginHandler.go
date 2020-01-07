@@ -14,10 +14,9 @@ type LoginStruct struct {
 	Password string `json:"password" validate:"required,min=3"`
 }
 
-var validate *validator.Validate
-
 // Login User handler
 func LoginHandler(c *gin.Context) {
+	var validate *validator.Validate
 	var body LoginStruct
 
 	// parse body post data
@@ -28,33 +27,20 @@ func LoginHandler(c *gin.Context) {
 	validateError := validate.Struct(body)
 
 	if validateError != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": "error",
-			"data": gin.H{
-				"message": validateError.Error(),
-			},
-		})
-
+		c.JSON(http.StatusBadRequest, utils.ErrorMessageResponse(validateError.Error()))
 		return
 	}
 
-	user, err := utils.GetUser(body.Email)
+	user, err := utils.GetUserEmail(body.Email)
 
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"status": "error",
-			"data": gin.H{
-				"message": "Unauthorized",
-			},
-		})
-
+		c.JSON(http.StatusUnauthorized, utils.ErrorMessageResponse("Unauthorized"))
 		return
 	}
 
 	log.Println(user, err)
 
-	c.JSON(http.StatusOK, gin.H{
-		"status": "success",
-		"data":   user,
-	})
+	c.JSON(http.StatusOK, utils.SuccessDataResponse(gin.H{
+		"user": user,
+	}))
 }
