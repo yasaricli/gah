@@ -19,6 +19,13 @@ export MONGO_COLLECTION=users # Collection to register all users
 
 #### Use with gin-gonic
 
+You need the **gin** package to use **gah**. You can install it as follows.
+
+    go get -u github.com/gin-gonic/gin
+    
+
+Add the `LoginHandler` and `RegisterHandler` functions to the **API**.
+
 ```golang
 package main
 
