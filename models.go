@@ -19,12 +19,13 @@ type RegisterStruct struct {
 type UserStruct struct {
 	ID        primitive.ObjectID `json:"id,omitempty" bson:"_id"`
 	Email     string             `json:"email" bson:"email"`
+	Password  string             `json:"password" bson:"password"`
 	CreatedAt time.Time          `json:"createdAt" bson:"createdAt"`
 }
 
 type TokenStruct struct {
-	Token     string
-	CreatedAt time.Time
+	Token     string    `json:"token" bson:"token"`
+	CreatedAt time.Time `json:"createdAt" bson:"createdAt"`
 }
 
 type UserRegisterStruct struct {

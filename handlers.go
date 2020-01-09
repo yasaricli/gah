@@ -1,7 +1,6 @@
 package gah
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -25,18 +24,32 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := GetUserEmail(body.Email)
+	user, err := GetUserByEmail(body.Email)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorMessageResponse("Unauthorized"))
 		return
 	}
 
-	log.Println(user, err)
+	pwd := []byte(body.Password)
+	pwdMatch := ComparePasswords(user.Password, pwd)
 
-	c.JSON(http.StatusOK, SuccessDataResponse(gin.H{
-		"user": user,
-	}))
+	if pwdMatch {
+
+		// Add a new auth token
+		token := InsertHashedLoginToken(user.ID)
+
+		// XXX: STATUS OK
+		c.JSON(http.StatusOK, SuccessDataResponse(gin.H{
+			"token":  token,
+			"userId": user.ID,
+		}))
+
+		return
+	}
+
+	// user not check pass
+	c.JSON(http.StatusUnauthorized, ErrorMessageResponse("Unauthorized"))
 }
 
 // RegisterHandler Gin register handler
@@ -57,10 +70,10 @@ func RegisterHandler(c *gin.Context) {
 	}
 
 	// check if the user has already registered.
-	_, userError := GetUserEmail(body.Email)
+	_, userError := GetUserByEmail(body.Email)
 
 	if userError != nil {
-		insertedUser := InsertUser(body.Email, body.Password)
+		insertedUser := CreateUser(body.Email, body.Password)
 
 		c.JSON(http.StatusOK, SuccessDataResponse(gin.H{
 			"_id":   insertedUser.ID,

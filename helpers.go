@@ -2,15 +2,39 @@ package gah
 
 import (
 	"context"
-	"log"
+	"crypto/rand"
+	"fmt"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// GetUserEmail the user receives the e-mail and returns the user.
-func GetUserEmail(email string) (UserStruct, error) {
+func TokenGenerator() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return fmt.Sprintf("%x", b)
+}
+
+// ComparePasswords check password
+func ComparePasswords(hashedPwd string, plainPwd []byte) bool {
+
+	// Since we'll be getting the hashed password from the DB it
+	// will be a string so we'll need to convert it to a byte slice
+	byteHash := []byte(hashedPwd)
+
+	err := bcrypt.CompareHashAndPassword(byteHash, plainPwd)
+
+	if err != nil {
+		return false
+	}
+
+	return true
+}
+
+// GetUserByEmail the user receives the e-mail and returns the user.
+func GetUserByEmail(email string) (UserStruct, error) {
 	var user UserStruct
 	collection := GetCollection()
 	doc := collection.FindOne(context.TODO(), bson.M{"email": email})
@@ -24,8 +48,8 @@ func GetUserEmail(email string) (UserStruct, error) {
 	return user, nil
 }
 
-// GetUserID The user receives _id and returns the user.
-func GetUserID(_id interface{}) (UserStruct, error) {
+// GetUserByID The user receives _id and returns the user.
+func GetUserByID(_id interface{}) (UserStruct, error) {
 	var user UserStruct
 	collection := GetCollection()
 	doc := collection.FindOne(context.TODO(), bson.M{"_id": _id})
@@ -39,13 +63,9 @@ func GetUserID(_id interface{}) (UserStruct, error) {
 	return user, nil
 }
 
-// InsertUser You can insert a new user.
-func InsertUser(email string, password string) UserStruct {
-	pass, passwordError := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-	if passwordError != nil {
-		log.Fatalln("Error on inserting new User", passwordError)
-	}
+// CreateUser You can insert a new user.
+func CreateUser(email string, password string) UserStruct {
+	pass, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 
 	collection := GetCollection()
 	insertResult, _ := collection.InsertOne(context.TODO(), UserRegisterStruct{
@@ -55,7 +75,27 @@ func InsertUser(email string, password string) UserStruct {
 		Tokens:    []TokenStruct{},
 	})
 
-	user, _ := GetUserID(insertResult.InsertedID)
+	user, _ := GetUserByID(insertResult.InsertedID)
 
 	return user
+}
+
+// InsertHashedLoginToken Add a new auth token to the user's account
+func InsertHashedLoginToken(id primitive.ObjectID) string {
+	collection := GetCollection()
+	token := TokenGenerator()
+
+	collection.UpdateOne(context.TODO(),
+		bson.M{"_id": id},
+		bson.M{
+			"$addToSet": bson.M{
+				"tokens": bson.M{
+					"token":     token,
+					"createdAt": time.Now(),
+				},
+			},
+		},
+	)
+
+	return token
 }
