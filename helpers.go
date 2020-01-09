@@ -11,6 +11,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// TokenGenerator new token generator
 func TokenGenerator() string {
 	b := make([]byte, 32)
 	rand.Read(b)
@@ -68,13 +69,14 @@ func CreateUser(email string, password string) UserStruct {
 	pass, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MinCost)
 
 	collection := GetCollection()
-	insertResult, _ := collection.InsertOne(context.TODO(), UserRegisterStruct{
+	newUser := &UserRegisterStruct{
 		Email:     email,
 		Password:  string(pass),
 		CreatedAt: time.Now(),
 		Tokens:    []TokenStruct{},
-	})
+	}
 
+	insertResult, _ := collection.InsertOne(context.TODO(), newUser)
 	user, _ := GetUserByID(insertResult.InsertedID)
 
 	return user
@@ -85,14 +87,16 @@ func InsertHashedLoginToken(id primitive.ObjectID) string {
 	collection := GetCollection()
 	token := TokenGenerator()
 
+	newToken := &TokenStruct{
+		Token:     token,
+		CreatedAt: time.Now(),
+	}
+
 	collection.UpdateOne(context.TODO(),
 		bson.M{"_id": id},
 		bson.M{
 			"$addToSet": bson.M{
-				"tokens": bson.M{
-					"token":     token,
-					"createdAt": time.Now(),
-				},
+				"tokens": newToken,
 			},
 		},
 	)
