@@ -103,3 +103,23 @@ func InsertHashedLoginToken(id primitive.ObjectID) string {
 
 	return token
 }
+
+// GetUserToken token and _id returned user struct
+func GetUserToken(id primitive.ObjectID, token string) (UserStruct, error) {
+	var user UserStruct
+	collection := GetCollection()
+	doc := collection.FindOne(context.TODO(),
+		bson.M{
+			"_id":          id,
+			"tokens.token": token,
+		},
+	)
+
+	err := doc.Decode(&user)
+
+	if err != nil {
+		return user, err
+	}
+
+	return user, nil
+}
