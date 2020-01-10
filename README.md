@@ -78,3 +78,8 @@ func main() {
  - using env:	export GIN_MODE=release
  - using code:	gin.SetMode(gin.ReleaseMode)
 ```
+
+#### Related posts
+
+**dev.to**
+[Authentication with gin-gonic && gah for golang](https://dev.to/yasaricli/authentication-with-gin-gonic-gah-for-golang-29d1)
