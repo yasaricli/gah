@@ -59,12 +59,12 @@ func main() {
   api := router.Group("/api")
   {
     api.GET("/books", gah.AuthRequiredMiddleware, func(c *gin.Context) {
-		  userID := c.MustGet("userID")
-
-			c.JSON(200, gin.H{
-			  "userId": userID,
-			})
-		})
+      userID := c.MustGet("userID")
+      
+      c.JSON(200, gin.H{
+        "userId": userID,
+      })
+    })
   }
 
   router.Run(":4000")
