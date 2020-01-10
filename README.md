@@ -3,6 +3,12 @@
 ### Installation
 To install **Gah (Gin Auth Handlers)** package, you need to install Go and set your Go workspace first.
 
+#### Related posts
+
+**dev.to**
+[Authentication with gin-gonic && gah for golang](https://dev.to/yasaricli/authentication-with-gin-gonic-gah-for-golang-29d1)
+
+
 You can use the below `Go` command to install **Gah**.
 
     go get -u github.com/yasaricli/gah
@@ -78,8 +84,3 @@ func main() {
  - using env:	export GIN_MODE=release
  - using code:	gin.SetMode(gin.ReleaseMode)
 ```
-
-#### Related posts
-
-**dev.to**
-[Authentication with gin-gonic && gah for golang](https://dev.to/yasaricli/authentication-with-gin-gonic-gah-for-golang-29d1)
