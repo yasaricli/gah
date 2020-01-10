@@ -45,6 +45,32 @@ func main() {
   router.Run(":4000")
 }
 ```
+
+#### AuthRequiredMiddleware
+
+Let's make a handler where the user is required:
+
+**Default: Get user ID and auth token from X-User-Id and X-Auth-Token headers**
+
+```golang
+func main() {
+  router := gin.Default()
+   
+  api := router.Group("/api")
+  {
+    api.GET("/books", gah.AuthRequiredMiddleware, func(c *gin.Context) {
+		  userID := c.MustGet("userID")
+
+			c.JSON(200, gin.H{
+			  "userId": userID,
+			})
+		})
+  }
+
+  router.Run(":4000")
+}
+```
+
 #### Production Release Mode
 
 ```sh
