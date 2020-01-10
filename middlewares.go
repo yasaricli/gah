@@ -17,7 +17,7 @@ func AuthRequiredMiddleware(c *gin.Context) {
 		return
 	}
 
-	_, authErr := GetUserToken(userID, authToken)
+	_, authErr := GetUserByToken(userID, authToken)
 
 	if authErr != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorMessageResponse("You must be logged in to do this."))
