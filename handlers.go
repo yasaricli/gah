@@ -1,14 +1,13 @@
 package gah
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
+	"net/http"
 )
 
-// LoginHandler Login User handler
-func LoginHandler(c *gin.Context) {
+func (a *GinAuth) LoginHandler(c *gin.Context) {
+
 	var validate *validator.Validate
 	var body LoginStruct
 
@@ -24,7 +23,7 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	user, err := GetUserByEmail(body.Email)
+	user, err := a.AuthBackEnd.GetUserByEmail(body.Email)
 
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, ErrorMessageResponse("Unauthorized"))
@@ -32,14 +31,10 @@ func LoginHandler(c *gin.Context) {
 	}
 
 	pwd := []byte(body.Password)
-	pwdMatch := ComparePasswords(user.Password, pwd)
+	pwdMatch := a.AuthBackEnd.ComparePasswords(user.Password, pwd)
 
 	if pwdMatch {
-
-		// Add a new auth token
-		token := InsertHashedLoginToken(user.ID)
-
-		// XXX: STATUS OK
+		token := a.AuthBackEnd.InsertHashedLoginToken(user.ID.String())
 		c.JSON(http.StatusOK, SuccessDataResponse(gin.H{
 			"authToken": token,
 			"userId":    user.ID,
@@ -48,12 +43,10 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	// user not check pass
 	c.JSON(http.StatusUnauthorized, ErrorMessageResponse("Unauthorized"))
 }
 
-// RegisterHandler Gin register handler
-func RegisterHandler(c *gin.Context) {
+func (a *GinAuth) RegisterHandler(c *gin.Context) {
 	var validate *validator.Validate
 	var body RegisterStruct
 
@@ -70,10 +63,10 @@ func RegisterHandler(c *gin.Context) {
 	}
 
 	// check if the user has already registered.
-	_, userError := GetUserByEmail(body.Email)
+	_, userError := a.AuthBackEnd.GetUserByEmail(body.Email)
 
 	if userError != nil {
-		insertedUser := CreateUser(body.Email, body.Password)
+		insertedUser := a.AuthBackEnd.CreateUser(body.Email, body.Password)
 
 		c.JSON(http.StatusOK, SuccessDataResponse(gin.H{
 			"_id":   insertedUser.ID,
