@@ -1,23 +1,23 @@
 package gah
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"net/http"
 )
 
-// AuthRequiredMiddleware // AuthRequiredMiddleware() middleware just in the "authorized"
-func AuthRequiredMiddleware(c *gin.Context) {
-	userID, userIDErr := primitive.ObjectIDFromHex(c.GetHeader("X-User-Id"))
+func (a *GinAuth) AuthRequiredMiddleware(c *gin.Context) {
+
+	userString := c.GetHeader("X-User-Id")
 	authToken := c.GetHeader("X-Auth-Token")
+	userID, userIDErr := primitive.ObjectIDFromHex(userString)
 
 	if userIDErr != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorMessageResponse("You must be logged in to do this."))
 		return
 	}
 
-	_, authErr := GetUserByToken(userID, authToken)
+	_, authErr := a.AuthBackEnd.GetUserByToken(userString, authToken)
 
 	if authErr != nil {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, ErrorMessageResponse("You must be logged in to do this."))

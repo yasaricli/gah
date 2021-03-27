@@ -13,15 +13,6 @@ You can use the below `Go` command to install **Gah**.
 
     go get -u github.com/yasaricli/gah
 
-### Usage and documentation
-
-First let's set the required `environment variables`
-
-```bash
-export MONGO_URL=mongodb://127.0.0.1:27017 # MongoDB server URL.
-export MONGO_DATABASE=project_db # MongoDB Project db name
-export MONGO_COLLECTION=users # Collection to register all users
-```
 
 #### Use with gin-gonic
 
@@ -41,11 +32,12 @@ import (
 
 func main() {
   router := gin.Default()
+  auth := gah.NewGinAuth(gah.NewMongoBackend(mongoUrl, mongoDb, MongoCollection))
    
   api := router.Group("/api")
   {
-    api.POST("/login", gah.LoginHandler)
-    api.POST("/register", gah.RegisterHandler)
+    api.POST("/login", auth.LoginHandler)
+    api.POST("/register", auth.RegisterHandler)
   }
 
   router.Run(":4000")
@@ -61,10 +53,11 @@ Let's make a handler where the user is required:
 ```golang
 func main() {
   router := gin.Default()
+  auth := gah.NewGinAuth(gah.NewMongoBackend(mongoUrl, mongoDb, MongoCollection))
    
   api := router.Group("/api")
   {
-    api.GET("/books", gah.AuthRequiredMiddleware, func(c *gin.Context) {
+    api.GET("/books", auth.AuthRequiredMiddleware, func(c *gin.Context) {
       userID := c.MustGet("userID")
       
       c.JSON(200, gin.H{
